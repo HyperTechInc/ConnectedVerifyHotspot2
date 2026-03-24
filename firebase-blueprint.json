@@ -1,0 +1,98 @@
+{
+  "entities": {
+    "User": {
+      "title": "User",
+      "description": "User profile and account information.",
+      "type": "object",
+      "properties": {
+        "uid": { "type": "string" },
+        "email": { "type": "string", "format": "email" },
+        "username": { "type": "string" },
+        "photoURL": { "type": "string" },
+        "role": { "type": "string", "enum": ["admin", "user"] },
+        "status": { "type": "string", "enum": ["active", "banned", "timeout"] },
+        "timeoutUntil": { "type": "string", "format": "date-time" },
+        "deviceType": { "type": "string" },
+        "location": {
+          "type": "object",
+          "properties": {
+            "latitude": { "type": "number" },
+            "longitude": { "type": "number" }
+          }
+        },
+        "isPermanent": { "type": "boolean" },
+        "createdAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["uid", "email", "username", "role", "status"]
+    },
+    "HotspotCode": {
+      "title": "HotspotCode",
+      "description": "Codes used for hotspot access.",
+      "type": "object",
+      "properties": {
+        "code": { "type": "string" },
+        "type": { "type": "string", "enum": ["permanent", "email", "phone", "qr"] },
+        "isUsed": { "type": "boolean" },
+        "expiresAt": { "type": "string", "format": "date-time" },
+        "createdBy": { "type": "string" }
+      },
+      "required": ["code", "type"]
+    },
+    "ChatMessage": {
+      "title": "ChatMessage",
+      "description": "Messages in the hotspot chat.",
+      "type": "object",
+      "properties": {
+        "text": { "type": "string" },
+        "senderUid": { "type": "string" },
+        "senderName": { "type": "string" },
+        "createdAt": { "type": "string", "format": "date-time" },
+        "isModerated": { "type": "boolean" }
+      },
+      "required": ["text", "senderUid", "senderName", "createdAt"]
+    },
+    "AccessRequest": {
+      "title": "AccessRequest",
+      "description": "Requests to join the hotspot.",
+      "type": "object",
+      "properties": {
+        "uid": { "type": "string" },
+        "username": { "type": "string" },
+        "code": { "type": "string" },
+        "status": { "type": "string", "enum": ["pending", "approved", "rejected"] },
+        "createdAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["uid", "username", "code", "status", "createdAt"]
+    },
+    "GlobalSettings": {
+      "title": "GlobalSettings",
+      "description": "Global configuration for the hotspot.",
+      "type": "object",
+      "properties": {
+        "autoApprove": { "type": "boolean" }
+      }
+    }
+  },
+  "firestore": {
+    "/users/{userId}": {
+      "schema": "User",
+      "description": "User profiles."
+    },
+    "/hotspot_codes/{codeId}": {
+      "schema": "HotspotCode",
+      "description": "Available access codes."
+    },
+    "/chat_messages/{messageId}": {
+      "schema": "ChatMessage",
+      "description": "Chat history."
+    },
+    "/access_requests/{requestId}": {
+      "schema": "AccessRequest",
+      "description": "Pending access requests."
+    },
+    "/settings/config": {
+      "schema": "GlobalSettings",
+      "description": "Global app settings."
+    }
+  }
+}

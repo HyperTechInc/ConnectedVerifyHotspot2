@@ -1,0 +1,5 @@
+{
+  "name": "HyperTech Hotspot Manager",
+  "description": "A comprehensive hotspot management system with AI moderation, real-time chat, and device-specific speed controls.",
+  "requestFramePermissions": ["geolocation"]
+}

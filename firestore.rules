@@ -1,0 +1,76 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    
+    // ===============================================================
+    // Assumed Data Model
+    // ===============================================================
+    // Collection: users
+    // Fields: uid, email, username, photoURL, role, status, timeoutUntil, deviceType, location, isPermanent, createdAt
+    //
+    // Collection: hotspot_codes
+    // Fields: code, type, isUsed, expiresAt, createdBy
+    //
+    // Collection: chat_messages
+    // Fields: text, senderUid, senderName, createdAt, isModerated
+    //
+    // Collection: access_requests
+    // Fields: uid, username, code, status, createdAt
+    //
+    // Collection: settings
+    // Fields: autoApprove
+    // ===============================================================
+
+    // Helper Functions
+    function isAuthenticated() {
+      return request.auth != null;
+    }
+
+    function isOwner(userId) {
+      return isAuthenticated() && request.auth.uid == userId;
+    }
+
+    function isAdmin() {
+      return isAuthenticated() &&
+        (get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == 'admin' ||
+          (request.auth.token.email == "kingzarek4456@gmail.com" && request.auth.token.email_verified == true));
+    }
+
+    function isValidUser(data) {
+      return data.keys().hasAll(['uid', 'email', 'username', 'role', 'status']) &&
+             data.uid is string && data.email is string && data.username is string &&
+             data.role in ['admin', 'user'] && data.status in ['active', 'banned', 'timeout'];
+    }
+
+    // Rules
+    match /users/{userId} {
+      allow read: if isAuthenticated();
+      allow create: if isAuthenticated() && isOwner(userId) && isValidUser(request.resource.data);
+      allow update: if isAdmin() || (isOwner(userId) && request.resource.data.role == resource.data.role);
+      allow delete: if isAdmin();
+    }
+
+    match /hotspot_codes/{codeId} {
+      allow read: if isAuthenticated();
+      allow write: if isAdmin();
+    }
+
+    match /chat_messages/{messageId} {
+      allow read: if isAuthenticated();
+      allow create: if isAuthenticated() && request.resource.data.senderUid == request.auth.uid;
+      allow delete: if isAdmin();
+    }
+
+    match /access_requests/{requestId} {
+      allow read: if isAdmin() || (isAuthenticated() && resource.data.uid == request.auth.uid);
+      allow create: if isAuthenticated() && request.resource.data.uid == request.auth.uid;
+      allow update: if isAdmin();
+      allow delete: if isAdmin();
+    }
+
+    match /settings/config {
+      allow read: if isAuthenticated();
+      allow write: if isAdmin();
+    }
+  }
+}
