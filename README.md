@@ -18,3 +18,9 @@ View your app in AI Studio: https://ai.studio/apps/717d31ba-8d4e-4c6a-86fe-fa721
 2. Set the `GEMINI_API_KEY` in [.env.local](.env.local) to your Gemini API key
 3. Run the app:
    `npm run dev`
+
+# Main Project: https://github.com/HyperTechInc/HyperTech-HQ
+
+# ⚠️MADE WITH AI⚠️
+
+# ⚠️MAY HAVE NON AI EDITS⚠️
